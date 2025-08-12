@@ -8,7 +8,7 @@ namespace GraphQLProject.Interfaces
         Menu GetMenuById(int id);
         Menu AddMenu(Menu menu);
         Menu UpdateMenu(int id, Menu menu);
-        Menu DeleteMenu(int id);
+        void DeleteMenu(int id);
 
     }
 }

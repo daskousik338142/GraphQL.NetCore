@@ -1,44 +1,59 @@
-﻿using GraphQLProject.Interfaces;
+﻿using GraphQLProject.Data;
+using GraphQLProject.Interfaces;
 using GraphQLProject.Models;
 
 namespace GraphQLProject.Services
 {
     public class MenuRepository : IMenuRepository
     {
-        private List<Menu> MenuList = new List<Menu>()
-        {
-            new Menu() {Id=1, Name="Classic Burger", Description="A juicy chicken burger with tomato and lettuce", Price=8.99},
-            new Menu() {Id=2, Name="Margherita Pizza", Description="Tomato, mozzarella and basil pizza", Price=10.99},
-            new Menu() {Id=3, Name="Grilled Chicken Salad", Description="Fresh garden salad with grilled chicken", Price=8.99},
-            new Menu() {Id=4, Name="Pasta Alfredo", Description="Creamy Alfredo sauce with fettuccine pasta", Price=12.99},
-            new Menu() {Id=5, Name="Chocolate Brownie Sundae", Description="Warm chocolate brownie with ice cream", Price=9.99}
 
-        };
+        private GraphQLDbContext _dbContext;
+
+        public MenuRepository(GraphQLDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
         public Menu AddMenu(Menu menu)
         {
-            MenuList.Add(menu);
+            _dbContext.Menus.Add(menu);
+            _dbContext.SaveChanges();
             return menu;
         }
 
         public void DeleteMenu(int id)
         {
-            MenuList.RemoveAt(id);
+            var searchedMenu = _dbContext.Menus.Find(id);
+            if (searchedMenu == null)
+                throw new InvalidOperationException($"Menu with id {id} not found.");
+            _dbContext.Menus.Remove(searchedMenu);
+            _dbContext.SaveChanges();
         }
 
         public List<Menu> GetAllMenu()
         {
-            return MenuList;
+            return _dbContext.Menus.ToList();
         }
 
         public Menu GetMenuById(int id)
         {
-            return MenuList.Find(m => m.Id == id);
+            var menu = _dbContext.Menus.Find(id);
+            if (menu == null)
+                throw new InvalidOperationException($"Menu with id {id} not found.");
+            return menu;
         }
 
         public Menu UpdateMenu(int id, Menu menu)
         {
-            MenuList[id] = menu;
+            var searchedMenu = _dbContext.Menus.Find(id);
+            if (searchedMenu == null)
+                throw new InvalidOperationException($"Menu with id {id} not found.");
+            searchedMenu.Name = menu.Name;
+            searchedMenu.Description = menu.Description;
+            searchedMenu.Price = menu.Price;
+            _dbContext.Menus.Update(searchedMenu);
+            _dbContext.SaveChanges();
             return menu;
         }
+
     }
 }
